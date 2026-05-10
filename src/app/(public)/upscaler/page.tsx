@@ -64,7 +64,10 @@ const SHOWCASE_ITEMS = [
   { before: '/showcase/before-upscale-2.jpg', after: '/showcase/after-upscale-2.png', label: 'Landscape' },
 ];
 
+
+
 export default function PublicUpscalerPage() {
+
   return (
     <div className="mx-auto max-w-5xl space-y-20 px-4 py-12">
       {/* Hero */}

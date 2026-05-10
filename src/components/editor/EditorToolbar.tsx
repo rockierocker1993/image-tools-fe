@@ -25,8 +25,8 @@ import { cn } from '@/lib/utils';
 import type { EditorTab } from '@/types/editor.types';
 
 interface EditorToolbarProps {
-  activeTab: EditorTab;
-  onTabChange: (tab: EditorTab) => void;
+  activeTab: EditorTab | null;
+  onTabChange: (tab: EditorTab | null) => void;
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
@@ -35,11 +35,11 @@ interface EditorToolbarProps {
 }
 
 const TABS: { id: EditorTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: 'cutout', label: 'Cutout', icon: Scissors },
+  // { id: 'cutout', label: 'Cutout', icon: Scissors },
   { id: 'background', label: 'Background', icon: Image },
-  { id: 'effects', label: 'Effects', icon: Sparkles },
-  { id: 'adjust', label: 'Adjust', icon: SlidersHorizontal },
-  { id: 'design', label: 'Design', icon: Layout },
+  // { id: 'effects', label: 'Effects', icon: Sparkles },
+  // { id: 'adjust', label: 'Adjust', icon: SlidersHorizontal },
+  // { id: 'design', label: 'Design', icon: Layout },
 ];
 
 export function EditorToolbar({
@@ -61,17 +61,16 @@ export function EditorToolbar({
       <div className="flex items-center gap-1">
         {TABS.map((tab) => {
           const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
           return (
             <Tooltip key={tab.id}>
               <TooltipTrigger>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => onTabChange(tab.id)}
+                  onClick={() => onTabChange(activeTab === tab.id ? null : tab.id)}
                   className={cn(
                     'gap-2 rounded-full transition-all',
-                    isActive && 'bg-primary text-primary-foreground hover:bg-primary/90'
+                    activeTab === tab.id && 'bg-primary text-primary-foreground hover:bg-primary/90'
                   )}
                 >
                   <Icon className="h-4 w-4" />

@@ -1,66 +1,108 @@
-import { connectSocket, disconnectSocket, subscribeToJob } from '@/lib/socket';
+import { Client, type StompSubscription } from '@stomp/stompjs';
 import type { WebSocketJobEvent } from '@/types/job.types';
+import { subscribeToJob } from '@/lib/socket';
 
 type JobEventCallback = (event: WebSocketJobEvent) => void;
 
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:8080/ws';
+
+let stompClient: Client | null = null;
+
+const getStompClient = (token?: string): Client => {
+  if (!stompClient) {
+    stompClient = new Client({
+      webSocketFactory: () => new WebSocket(`${WS_URL}/websocket`),
+      connectHeaders: token ? { Authorization: `Bearer ${token}` } : {},
+      reconnectDelay: 5000,
+    });
+  }
+  return stompClient;
+};
+
+const subscribeWhenConnected = (
+  client: Client,
+  destination: string,
+  callback: (body: string) => void
+): (() => void) => {
+  let subscription: StompSubscription | null = null;
+
+  const doSubscribe = () => {
+    subscription = client.subscribe(destination, (message) => {
+      callback(message.body);
+    });
+  };
+
+  if (client.connected) {
+    doSubscribe();
+  } else {
+    const prevOnConnect = client.onConnect;
+    client.onConnect = (frame) => {
+      prevOnConnect?.call(client, frame);
+      doSubscribe();
+    };
+  }
+
+  return () => subscription?.unsubscribe();
+};
+
 export const socketService = {
   connect: (token?: string) => {
-    connectSocket(token);
+    const client = getStompClient(token);
+    if (!client.active) {
+      client.activate();
+    }
   },
 
   disconnect: () => {
-    disconnectSocket();
+    stompClient?.deactivate();
+    stompClient = null;
   },
 
-  subscribeToRemoveBackground: (jobId: string, callback: JobEventCallback): (() => void) => {
-    const socket = connectSocket();
+  onConnectionChange: (
+    onConnected: () => void,
+    onDisconnected: () => void,
+    onError: () => void
+  ): (() => void) => {
+    const client = getStompClient();
+    const prevOnConnect = client.onConnect;
+    const prevOnDisconnect = client.onDisconnect;
+    const prevOnStompError = client.onStompError;
 
-    socket.emit('subscribe', { channel: `remove-background:${jobId}` });
-
-    const unsubProcessing = subscribeToJob(
-      `remove-background:processing`,
-      (data) => callback(data as WebSocketJobEvent)
-    );
-    const unsubCompleted = subscribeToJob(
-      `remove-background:completed`,
-      (data) => callback(data as WebSocketJobEvent)
-    );
-    const unsubFailed = subscribeToJob(
-      `remove-background:failed`,
-      (data) => callback(data as WebSocketJobEvent)
-    );
+    client.onConnect = (frame) => {
+      prevOnConnect?.call(client, frame);
+      onConnected();
+    };
+    client.onDisconnect = (frame) => {
+      prevOnDisconnect?.call(client, frame);
+      onDisconnected();
+    };
+    client.onStompError = (frame) => {
+      prevOnStompError?.call(client, frame);
+      onError();
+    };
 
     return () => {
-      socket.emit('unsubscribe', { channel: `remove-background:${jobId}` });
-      unsubProcessing();
-      unsubCompleted();
-      unsubFailed();
+      client.onConnect = prevOnConnect;
+      client.onDisconnect = prevOnDisconnect;
+      client.onStompError = prevOnStompError;
     };
   },
 
-  subscribeToUpscaler: (jobId: string, callback: JobEventCallback): (() => void) => {
-    const socket = connectSocket();
-
-    socket.emit('subscribe', { channel: `upscaler:${jobId}` });
-
-    const unsubProcessing = subscribeToJob(
-      `upscaler:processing`,
-      (data) => callback(data as WebSocketJobEvent)
-    );
-    const unsubCompleted = subscribeToJob(
-      `upscaler:completed`,
-      (data) => callback(data as WebSocketJobEvent)
-    );
-    const unsubFailed = subscribeToJob(
-      `upscaler:failed`,
-      (data) => callback(data as WebSocketJobEvent)
-    );
+  subscribeToJob: (userId: string,callback: JobEventCallback): (() => void) => {
+    const client = getStompClient();
+    console.log('Subscribing to job events for user:', userId);
+    const unsubResult = subscribeWhenConnected(client, `/topic/job/${userId}`, (body) => {
+      console.log('Received job event:', body);
+      callback(JSON.parse(body) as WebSocketJobEvent);
+    });
+    const unsubError = subscribeWhenConnected(client, `/topic/job-error/${userId}`, (body) => {
+      console.log('Received job error event:', body);
+      callback(JSON.parse(body) as WebSocketJobEvent);
+    });
 
     return () => {
-      socket.emit('unsubscribe', { channel: `upscaler:${jobId}` });
-      unsubProcessing();
-      unsubCompleted();
-      unsubFailed();
+      unsubResult();
+      unsubError();
     };
-  },
+  }
 };

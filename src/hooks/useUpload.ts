@@ -10,7 +10,7 @@ interface UseUploadOptions {
 }
 
 export const useUpload = ({ onUpload }: UseUploadOptions) => {
-  const { setFile, setStatus, setProgress, setError, setJobId, reset } = useUploadStore();
+  const { addItem, setItemRequestId, setStatus, setError, reset } = useUploadStore();
 
   const handleFileSelect = useCallback(
     async (file: File) => {
@@ -21,22 +21,20 @@ export const useUpload = ({ onUpload }: UseUploadOptions) => {
       }
 
       const previewUrl = createImagePreviewUrl(file);
-      setFile(file, previewUrl);
+      const itemId = addItem(previewUrl);
       setStatus('uploading');
-      setProgress(0);
 
       try {
         const jobId = await onUpload(file);
-        setJobId(jobId);
+        setItemRequestId(itemId, jobId);
         setStatus('success');
-        setProgress(100);
       } catch (error) {
         const message = error instanceof Error ? error.message : 'Upload failed.';
         setError(message);
         toast.error(message);
       }
     },
-    [onUpload, setFile, setStatus, setProgress, setError, setJobId]
+    [onUpload, addItem, setItemRequestId, setStatus, setError]
   );
 
   const handleDrop = useCallback(
@@ -49,3 +47,4 @@ export const useUpload = ({ onUpload }: UseUploadOptions) => {
 
   return { handleFileSelect, handleDrop, reset };
 };
+

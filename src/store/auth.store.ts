@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { User } from '@/types/api.types';
-import { clearTokens, setTokens } from '@/lib/auth';
+import { clearTokens, setTokens, clearGuestToken } from '@/lib/auth';
 
 interface AuthState {
   user: User | null;
@@ -35,6 +35,7 @@ export const useAuthStore = create<AuthStore>()(
 
       logout: () => {
         clearTokens();
+        clearGuestToken();
         set({ user: null, accessToken: null, refreshToken: null, isLoggedIn: false });
       },
     }),

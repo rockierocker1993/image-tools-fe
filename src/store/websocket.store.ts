@@ -1,19 +1,17 @@
+import { WebSocketJobEvent } from '@/types/job.types';
 import { create } from 'zustand';
-import type { JobStatus } from '@/types/job.types';
 
 export type WebSocketConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
 
 interface WebSocketState {
   connectionState: WebSocketConnectionState;
-  activeJobs: Record<string, JobStatus>;
-  jobResults: Record<string, string>;
-  jobErrors: Record<string, string>;
+  jobResults: Record<string, WebSocketJobEvent>;
 }
 
 interface WebSocketActions {
   setConnectionState: (state: WebSocketConnectionState) => void;
-  updateJobStatus: (jobId: string, status: JobStatus, resultUrl?: string, error?: string) => void;
-  removeJob: (jobId: string) => void;
+  updateJobStatus: (requestId: string, status: boolean, webpUrl?: string, module?: string) => void;
+  removeJob: (requestId: string) => void;
   reset: () => void;
 }
 
@@ -21,9 +19,7 @@ type WebSocketStore = WebSocketState & WebSocketActions;
 
 const initialState: WebSocketState = {
   connectionState: 'disconnected',
-  activeJobs: {},
-  jobResults: {},
-  jobErrors: {},
+  jobResults: {}
 };
 
 export const useWebSocketStore = create<WebSocketStore>()((set) => ({
@@ -31,23 +27,18 @@ export const useWebSocketStore = create<WebSocketStore>()((set) => ({
 
   setConnectionState: (connectionState) => set({ connectionState }),
 
-  updateJobStatus: (jobId, status, resultUrl, error) =>
+  updateJobStatus: (requestId, status, webpUrl, module) =>
     set((state) => ({
-      activeJobs: { ...state.activeJobs, [jobId]: status },
-      jobResults: resultUrl
-        ? { ...state.jobResults, [jobId]: resultUrl }
-        : state.jobResults,
-      jobErrors: error
-        ? { ...state.jobErrors, [jobId]: error }
-        : state.jobErrors,
+      jobResults: {
+        ...state.jobResults,
+        [requestId]: { requestId, status, webpUrl, module },
+      }
     })),
 
-  removeJob: (jobId) =>
+  removeJob: (requestId) =>
     set((state) => {
-      const { [jobId]: _ajob, ...activeJobs } = state.activeJobs;
-      const { [jobId]: _rjob, ...jobResults } = state.jobResults;
-      const { [jobId]: _ejob, ...jobErrors } = state.jobErrors;
-      return { activeJobs, jobResults, jobErrors };
+      const { [requestId]: _rjob, ...jobResults } = state.jobResults;
+      return { jobResults };
     }),
 
   reset: () => set(initialState),

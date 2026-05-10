@@ -65,6 +65,7 @@ const SHOWCASE_ITEMS = [
   { before: '/showcase/before-3.jpg', after: '/showcase/after-3.png', label: 'Object' },
 ];
 
+
 export default function PublicRemoveBackgroundPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-20 px-4 py-12">

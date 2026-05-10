@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuthStore } from '@/store/auth.store';
 import { ROUTES } from '@/constants/routes';
+import { useWarmingUp } from '@/hooks/useWarmingUp';
+import { useEffect, useRef } from 'react';
 
 const TOOLS = [
   {
@@ -38,9 +40,19 @@ const itemVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
-export function DashboardHome() {
-  const { user } = useAuthStore();
 
+
+
+export function DashboardHome() {
+  const initialWarmingUp = useRef(true);
+  const { warmingUpAll } = useWarmingUp();
+  useEffect(() => {
+    if (initialWarmingUp.current) {
+      initialWarmingUp.current = false;
+      warmingUpAll();
+    }
+  }, [warmingUpAll]);
+  const { user } = useAuthStore();
   return (
     <motion.div
       variants={containerVariants}

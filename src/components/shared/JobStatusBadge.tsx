@@ -2,10 +2,12 @@ import { motion } from 'framer-motion';
 import { CheckCircle2, XCircle, Loader2, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import type { JobStatus } from '@/types/job.types';
+import { BADGE_STATUS } from '@/constants/constant';
 
-interface JobStatusBadgeProps {
-  status: JobStatus;
+export type BadgeStatus = keyof typeof BADGE_STATUS;
+
+interface BadgeStatusProps {
+  status: BadgeStatus;
   className?: string;
 }
 
@@ -36,7 +38,7 @@ const STATUS_CONFIG = {
   },
 };
 
-export function JobStatusBadge({ status, className }: JobStatusBadgeProps) {
+export function JobStatusBadge({ status, className }: BadgeStatusProps) {
   const config = STATUS_CONFIG[status];
   const Icon = config.icon;
 

@@ -13,5 +13,12 @@ export const removeBackgroundApi = {
       { headers: { 'Content-Type': 'multipart/form-data' } }
     );
     return response.data;
+  },
+  warmingUp: async (): Promise<BaseResponse<string>> => {
+    const response = await apiClient.get<BaseResponse<string>>(
+      '/job/warming-up/rembg',
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+    return response.data;
   }
 };

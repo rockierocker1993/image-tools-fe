@@ -1,27 +1,39 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { UploadArea } from '@/components/shared/UploadArea';
-import { JobStatusBadge } from '@/components/shared/JobStatusBadge';
-import { LoadingSkeleton } from '@/components/shared/LoadingSkeleton';
 import { EditorToolbar } from '@/components/editor/EditorToolbar';
 import { EditorCanvas } from '@/components/editor/EditorCanvas';
 import { EditorThumbnails } from '@/components/editor/EditorThumbnails';
 import { MobileEditorSheet } from '@/components/editor/MobileEditorSheet';
+import { BackgroundPanel } from '@/components/editor/BackgroundPanel';
 import { Button } from '@/components/ui/button';
 import { useUploadStore } from '@/store/upload.store';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useEditor } from '@/hooks/useEditor';
 import { useUpscaler } from '../hooks/useUpscaler';
+import type { EditorTab } from '@/types/editor.types';
+import { useWarmingUp } from '@/hooks/useWarmingUp';
 
 export function UpscalerPage() {
   const [scaleFactor, setScaleFactor] = useState<2 | 4>(2);
-  const { status, previewUrl, jobId } = useUploadStore();
-  const { jobStatus, resultUrl, error } = useWebSocket(jobId, 'upscaler');
+  const [activePanel, setActivePanel] = useState<EditorTab | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { status, items, activeItemId, setActiveItem, applyBackground, undoBg, redoBg } = useUploadStore();
+  useWebSocket();
   const editor = useEditor();
   const { handleFileDrop, isPending } = useUpscaler(scaleFactor);
+
+  const activeItem = items.find((i) => i.id === activeItemId);
+  const previewUrl = activeItem?.previewUrl ?? null;
+  const requestId = activeItem?.requestId ?? null;
+  const resultUrl = activeItem?.resultUrl ?? null;
+  const bgColor = activeItem?.bgColor ?? null;
+  const bgImageUrl = activeItem?.bgImageUrl ?? null;
+  const canUndo = (activeItem?.bgHistoryIndex ?? 0) > 0;
+  const canRedo = (activeItem?.bgHistoryIndex ?? -1) < (activeItem?.bgHistory?.length ?? 0) - 1;
 
   useEffect(() => {
     if (resultUrl) {
@@ -30,18 +42,55 @@ export function UpscalerPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resultUrl]);
 
-  const isProcessing = jobStatus === 'PROCESSING' || status === 'uploading' || isPending;
+  const isLoading = status === 'uploading' || isPending || (!!requestId && activeItem?.resultUrl === undefined);
+  console.log('isLoading:', { status, isPending, requestId, resultUrl, activeItem });
+  const thumbnailItems = items.map((item) => ({
+    id: item.id,
+    url: item.resultUrl ?? item.previewUrl,
+    label: item.resultUrl ? `${scaleFactor}x Result` : (item.requestId ? 'Processing...' : 'Original'),
+  }));
 
-  const thumbnailItems = previewUrl
-    ? [{ id: 'original', url: previewUrl, label: 'Original' }]
-    : [];
-  if (resultUrl) thumbnailItems.push({ id: 'result', url: resultUrl, label: `${scaleFactor}x Result` });
+  const handleAddMore = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+
+  const handleFileInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files ?? []);
+      if (files.length > 0) handleFileDrop(files);
+      e.target.value = '';
+    },
+    [handleFileDrop]
+  );
+
+  const handleThumbnailSelect = useCallback(
+    (id: string) => {
+      setActiveItem(id);
+      const item = items.find((i) => i.id === id);
+      if (item?.resultUrl) editor.setResultImage(item.resultUrl);
+    },
+    [items, setActiveItem, editor]
+  );
+
+  const hasItems = items.length > 0;
+
+  const { warmingUpUpscaler } = useWarmingUp();
+  useEffect(() => {
+    warmingUpUpscaler();
+  }, [warmingUpUpscaler]);
 
   return (
     <TooltipProvider>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/png,image/jpeg,image/webp"
+        className="hidden"
+        onChange={handleFileInputChange}
+      />
       <div className="flex h-full flex-col gap-4">
         <AnimatePresence mode="wait">
-          {!previewUrl ? (
+          {!hasItems ? (
             <motion.div
               key="upload"
               initial={{ opacity: 0, y: 20 }}
@@ -74,7 +123,7 @@ export function UpscalerPage() {
 
               <UploadArea
                 onFileDrop={handleFileDrop}
-                isLoading={isProcessing}
+                isLoading={isPending}
                 className="w-full max-w-2xl"
                 description={`Drop your image to upscale ${scaleFactor}x`}
               />
@@ -86,53 +135,61 @@ export function UpscalerPage() {
               animate={{ opacity: 1 }}
               className="flex flex-1 flex-col gap-3"
             >
-              {jobStatus && (
-                <div className="flex items-center justify-between">
-                  <JobStatusBadge status={jobStatus} />
-                  {error && <p className="text-sm text-destructive">{error}</p>}
-                </div>
-              )}
+              <div className="hidden md:block">
+                <EditorToolbar
+                  activeTab={activePanel}
+                  onTabChange={setActivePanel}
+                  canUndo={canUndo}
+                  canRedo={canRedo}
+                  onUndo={() => activeItemId && undoBg(activeItemId)}
+                  onRedo={() => activeItemId && redoBg(activeItemId)}
+                  onDownload={editor.handleDownload}
+                />
+              </div>
 
-              {isProcessing ? (
-                <LoadingSkeleton variant="editor" className="flex-1" />
-              ) : (
-                <>
-                  <div className="hidden md:block">
-                    <EditorToolbar
-                      activeTab={editor.activeTab}
-                      onTabChange={editor.handleTabChange}
-                      canUndo={editor.canUndo}
-                      canRedo={editor.canRedo}
-                      onUndo={editor.undo}
-                      onRedo={editor.redo}
-                      onDownload={editor.handleDownload}
-                    />
-                  </div>
+              {/* Canvas + side panel */}
+              <div className="flex flex-1 gap-3 min-h-0">
+                <div className="flex flex-1 flex-col gap-3 min-h-0">
                   <EditorCanvas
                     originalUrl={previewUrl}
-                    resultUrl={editor.resultImageUrl}
-                    zoom={editor.zoom}
-                    isComparing={editor.isComparing}
-                    onZoomIn={editor.handleZoomIn}
-                    onZoomOut={editor.handleZoomOut}
-                    onZoomReset={editor.handleZoomReset}
+                    resultUrl={resultUrl}
+                    isLoading={isLoading}
+                    bgColor={bgColor}
+                    bgImageUrl={bgImageUrl}
                   />
+
                   <EditorThumbnails
                     items={thumbnailItems}
-                    activeId={resultUrl ? 'result' : 'original'}
-                    onSelect={() => {}}
+                    activeId={activeItemId}
+                    onSelect={handleThumbnailSelect}
+                    onAdd={handleAddMore}
                   />
-                  <MobileEditorSheet
-                    activeTab={editor.activeTab}
-                    onTabChange={editor.handleTabChange}
-                    canUndo={editor.canUndo}
-                    canRedo={editor.canRedo}
-                    onUndo={editor.undo}
-                    onRedo={editor.redo}
-                    onDownload={editor.handleDownload}
-                  />
-                </>
-              )}
+                </div>
+
+                {/* Background side panel — desktop only */}
+                <div className="hidden md:block">
+                  <AnimatePresence>
+                    {activePanel === 'background' && (
+                      <BackgroundPanel
+                        onApply={(url) => activeItemId && applyBackground(activeItemId, { bgImageUrl: url, bgColor: null })}
+                        onApplyColor={(color) => activeItemId && applyBackground(activeItemId, { bgColor: color, bgImageUrl: null })}
+                      />
+                    )}
+                  </AnimatePresence>
+                </div>
+              </div>
+
+              <MobileEditorSheet
+                activeTab={activePanel ?? 'cutout'}
+                onTabChange={setActivePanel}
+                canUndo={canUndo}
+                canRedo={canRedo}
+                onUndo={() => activeItemId && undoBg(activeItemId)}
+                onRedo={() => activeItemId && redoBg(activeItemId)}
+                onDownload={editor.handleDownload}
+                onApplyBackground={(url) => activeItemId && applyBackground(activeItemId, { bgImageUrl: url, bgColor: null })}
+                onApplyColor={(color) => activeItemId && applyBackground(activeItemId, { bgColor: color, bgImageUrl: null })}
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -140,3 +197,4 @@ export function UpscalerPage() {
     </TooltipProvider>
   );
 }
+

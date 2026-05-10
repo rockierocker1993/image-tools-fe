@@ -24,7 +24,7 @@ axiosRetry(apiClient, {
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('accessToken');
+      const token = localStorage.getItem('accessToken') ?? localStorage.getItem('guestToken');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }

@@ -16,16 +16,19 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { BackgroundPanel } from '@/components/editor/BackgroundPanel';
 import type { EditorTab } from '@/types/editor.types';
 
 interface MobileEditorSheetProps {
-  activeTab: EditorTab;
-  onTabChange: (tab: EditorTab) => void;
+  activeTab: EditorTab | null;
+  onTabChange: (tab: EditorTab | null) => void;
   canUndo: boolean;
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
   onDownload: (format: 'png' | 'jpg' | 'webp') => void;
+  onApplyBackground?: (url: string) => void;
+  onApplyColor?: (color: string | null) => void;
 }
 
 const TABS: { id: EditorTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
@@ -44,6 +47,8 @@ export function MobileEditorSheet({
   onUndo,
   onRedo,
   onDownload,
+  onApplyBackground,
+  onApplyColor,
 }: MobileEditorSheetProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -95,14 +100,13 @@ export function MobileEditorSheet({
               <div className="grid grid-cols-5 gap-1 px-4 pb-2">
                 {TABS.map((tab) => {
                   const Icon = tab.icon;
-                  const isActive = activeTab === tab.id;
                   return (
                     <button
                       key={tab.id}
-                      onClick={() => { onTabChange(tab.id); setIsOpen(false); }}
+                      onClick={() => { onTabChange(activeTab === tab.id ? null : tab.id); }}
                       className={cn(
                         'flex flex-col items-center gap-1.5 rounded-xl p-3 text-xs transition-colors',
-                        isActive
+                        activeTab === tab.id
                           ? 'bg-primary text-primary-foreground'
                           : 'text-muted-foreground hover:bg-muted'
                       )}
@@ -113,6 +117,17 @@ export function MobileEditorSheet({
                   );
                 })}
               </div>
+
+              {/* Background panel — shown inline when Background tab is active */}
+              {activeTab === 'background' && (
+                <div className="border-t border-border">
+                  <BackgroundPanel
+                    inline
+                    onApply={onApplyBackground}
+                    onApplyColor={onApplyColor}
+                  />
+                </div>
+              )}
 
               {/* Actions */}
               <div className="flex gap-3 border-t px-4 py-3">

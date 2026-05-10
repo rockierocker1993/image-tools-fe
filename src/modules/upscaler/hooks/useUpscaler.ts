@@ -5,27 +5,27 @@ import { toast } from 'sonner';
 import { upscalerApi } from '@/services/api/upscaler.api';
 import { useUploadStore } from '@/store/upload.store';
 import { validateImageFile, createImagePreviewUrl } from '@/utils/file.utils';
-import { useEditorStore } from '@/store/editor.store';
 
 export const useUpscaler = (scaleFactor: 2 | 4 = 2) => {
-  const { setFile, setStatus, setJobId, setError } = useUploadStore();
-  const resetEditor = useEditorStore((s) => s.reset);
+  const { addItem, setItemRequestId, setStatus, setError } = useUploadStore();
 
   const mutation = useMutation({
     mutationFn: (file: File) => upscalerApi.createJob(file, scaleFactor),
     onMutate: (file) => {
-      resetEditor();
       const previewUrl = createImagePreviewUrl(file);
-      setFile(file, previewUrl);
+      const itemId = addItem(previewUrl);
       setStatus('uploading');
+      return { itemId };
     },
-    onSuccess: (job) => {
-      setJobId(job.id);
+    onSuccess: (job, _variables, context) => {
+      if (context?.itemId) {
+        setItemRequestId(context.itemId, job.data?.image_id ?? null);
+      }
       setStatus('success');
     },
     onError: (error: Error) => {
       setError(error.message);
-      toast.error('Failed to start job. Please try again.');
+      toast.error('Failed to upscale image. Please try again.');
     },
   });
 

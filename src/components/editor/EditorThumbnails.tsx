@@ -22,6 +22,18 @@ interface EditorThumbnailsProps {
 export function EditorThumbnails({ items, activeId, onSelect, onAdd }: EditorThumbnailsProps) {
   return (
     <div className="flex h-24 items-center gap-3 rounded-xl bg-card px-4 shadow-sm ring-1 ring-border">
+      {/* Add button on the LEFT */}
+      {onAdd && (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onAdd}
+          className="h-12 w-12 shrink-0 rounded-lg border-dashed"
+        >
+          <Plus className="h-5 w-5" />
+        </Button>
+      )}
+
       <ScrollArea className="flex-1">
         <div className="flex gap-3 pb-1 overflow-x-auto">
           {items.map((item, index) => (
@@ -53,17 +65,6 @@ export function EditorThumbnails({ items, activeId, onSelect, onAdd }: EditorThu
           ))}
         </div>
       </ScrollArea>
-
-      {onAdd && (
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={onAdd}
-          className="h-12 w-12 shrink-0 rounded-lg border-dashed"
-        >
-          <Plus className="h-5 w-5" />
-        </Button>
-      )}
     </div>
   );
 }

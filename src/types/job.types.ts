@@ -3,6 +3,18 @@ export interface CreateJobRembgResponse {
   image_id: string | null;
 }
 
+export interface CreateJobUpscalerResponse{
+  image_id: string | null;
+}
+
+export interface WebSocketJobEvent {
+  requestId: string;
+  status: boolean;
+  webpUrl?: string;
+  module?: string;
+}
+
+
 //unused file, will be used in the future when we implement job management features
 import type { JOB_STATUS } from '@/constants/events';
 
@@ -24,16 +36,7 @@ export interface RemoveBackgroundJob extends Job {
   thumbnailUrl?: string;
 }
 
-export interface UpscalerJob extends Job {
-  type: 'upscaler';
-  inputImageUrl: string;
-  resultImageUrl?: string;
-  scaleFactor: 2 | 4;
-  originalWidth?: number;
-  originalHeight?: number;
-  resultWidth?: number;
-  resultHeight?: number;
-}
+
 
 export interface CreateRemoveBackgroundJobRequest {
   image: File;
@@ -42,12 +45,4 @@ export interface CreateRemoveBackgroundJobRequest {
 export interface CreateUpscalerJobRequest {
   image: File;
   scaleFactor: 2 | 4;
-}
-
-export interface WebSocketJobEvent {
-  jobId: string;
-  status: JobStatus;
-  resultImageUrl?: string;
-  errorMessage?: string;
-  progress?: number;
 }

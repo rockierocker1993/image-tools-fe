@@ -1,34 +1,24 @@
 import { apiClient } from '@/lib/axios';
-import type { UpscalerJob } from '@/types/job.types';
-import type { PaginatedResponse } from '@/types/api.types';
+import { BaseResponse } from '@/types/baseResponse.types';
+import type { CreateJobUpscalerResponse } from '@/types/job.types';
 
 export const upscalerApi = {
-  createJob: async (image: File, scaleFactor: 2 | 4 = 2): Promise<UpscalerJob> => {
+  createJob: async (image: File, scaleFactor: 2 | 4 = 2): Promise<BaseResponse<CreateJobUpscalerResponse>> => {
     const formData = new FormData();
-    formData.append('image', image);
-    formData.append('scaleFactor', String(scaleFactor));
-    const response = await apiClient.post<UpscalerJob>(
-      '/upscaler/jobs',
+    formData.append('file', image);
+    formData.append('scale', String(scaleFactor));
+    const response = await apiClient.post<BaseResponse<CreateJobUpscalerResponse>>(
+      '/job/create-job/upscale',
       formData,
       { headers: { 'Content-Type': 'multipart/form-data' } }
     );
     return response.data;
   },
-
-  getJob: async (jobId: string): Promise<UpscalerJob> => {
-    const response = await apiClient.get<UpscalerJob>(`/upscaler/jobs/${jobId}`);
-    return response.data;
-  },
-
-  getJobs: async (page = 1, limit = 20): Promise<PaginatedResponse<UpscalerJob>> => {
-    const response = await apiClient.get<PaginatedResponse<UpscalerJob>>(
-      '/upscaler/jobs',
-      { params: { page, limit } }
+  warmingUp: async (): Promise<BaseResponse<string>> => {
+    const response = await apiClient.get<BaseResponse<string>>(
+      '/job/warming-up/upscale',
+      { headers: { 'Content-Type': 'application/json' } }
     );
     return response.data;
-  },
-
-  deleteJob: async (jobId: string): Promise<void> => {
-    await apiClient.delete(`/upscaler/jobs/${jobId}`);
-  },
+  }
 };

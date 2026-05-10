@@ -36,3 +36,19 @@ export const isTokenExpired = (token: string): boolean => {
     return true;
   }
 };
+
+const GUEST_TOKEN_KEY = 'guestToken';
+
+export const getOrCreateGuestToken = (): string => {
+  if (typeof window === 'undefined') return '';
+  const existing = localStorage.getItem(GUEST_TOKEN_KEY);
+  if (existing) return existing;
+  const token = `guest_${crypto.randomUUID()}`;
+  localStorage.setItem(GUEST_TOKEN_KEY, token);
+  return token;
+};
+
+export const clearGuestToken = (): void => {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(GUEST_TOKEN_KEY);
+};
