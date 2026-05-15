@@ -7,6 +7,11 @@ export interface CreateJobUpscalerResponse{
   image_id: string | null;
 }
 
+export interface FaqResponse {
+  question: string | null;
+  answer: string | null;
+}
+
 export interface WebSocketJobEvent {
   requestId: string;
   status: boolean;

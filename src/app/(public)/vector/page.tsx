@@ -3,10 +3,10 @@ import { ZoomIn, Maximize2, Sparkles, ArrowRight } from 'lucide-react';
 import { UpscalerPage } from '@/modules/upscaler';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { FaqSection } from '@/components/shared/FaqSection';
 import { BeforeAfterShowcase } from '@/components/shared/BeforeAfterShowcase';
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
-import { FaqPage } from '@/modules/public-faq';
 
 export const metadata: Metadata = {
   title: 'AI Image Upscaler - Enhance Resolution Free',
@@ -31,6 +31,34 @@ const FEATURES = [
   },
 ];
 
+const FAQ_ITEMS = [
+  {
+    question: 'How does AI upscaling differ from regular resizing?',
+    answer:
+      'Regular resizing just stretches pixels, causing blurring and artifacts. AI upscaling analyzes image content and intelligently reconstructs fine details, textures, and edges — producing sharp, natural-looking results.',
+  },
+  {
+    question: 'What scale factors are available?',
+    answer:
+      'We support 2× (doubles width and height) and 4× (quadruples width and height). A 1000×1000px image becomes 4000×4000px at 4× — ideal for printing and large-format displays.',
+  },
+  {
+    question: 'What file formats and sizes are supported?',
+    answer:
+      'We accept PNG, JPG/JPEG, and WebP images up to 20MB. Output is delivered as a high-quality PNG.',
+  },
+  {
+    question: 'Is there a limit on how many images I can upscale?',
+    answer:
+      'Free users can upscale images without an account. Creating a free account increases your daily limit and gives you access to your processing history.',
+  },
+  {
+    question: 'Will upscaling improve a very blurry or low-quality photo?',
+    answer:
+      'AI upscaling works best with images that have reasonable original quality. Severely blurry or heavily compressed images will improve, but starting with better source material always yields better results.',
+  },
+];
+
 const SHOWCASE_ITEMS = [
   { before: '/showcase/before-upscale-1.jpg', after: '/showcase/after-upscale-1.png', label: 'Portrait' },
   { before: '/showcase/before-upscale-2.jpg', after: '/showcase/after-upscale-2.png', label: 'Landscape' },
@@ -38,7 +66,7 @@ const SHOWCASE_ITEMS = [
 
 
 
-export default function PublicUpscalerPage() {
+export default function PublicVectorPage() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-20 px-4 py-12">
@@ -96,7 +124,7 @@ export default function PublicUpscalerPage() {
       </section>
 
       {/* FAQ */}
-      <FaqPage category="UPSCALE" />
+      <FaqSection items={FAQ_ITEMS} />
 
       {/* CTA */}
       <section className="rounded-2xl bg-primary p-8 text-center text-primary-foreground">

@@ -3,7 +3,7 @@ import { Eraser, Zap, Shield, Download, ArrowRight } from 'lucide-react';
 import { RemoveBackgroundPage } from '@/modules/remove-background';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FaqSection } from '@/components/shared/FaqSection';
+import { FaqPage } from '@/modules/public-faq/componenents/FaqPage';
 import { BeforeAfterShowcase } from '@/components/shared/BeforeAfterShowcase';
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
@@ -28,34 +28,6 @@ const FEATURES = [
     icon: Download,
     title: 'Free to Download',
     description: 'Download your result in full resolution. No watermarks, ever.',
-  },
-];
-
-const FAQ_ITEMS = [
-  {
-    question: 'How does the background removal work?',
-    answer:
-      'Our AI model analyzes your image and automatically detects the subject versus the background. It then precisely removes the background, leaving you with a clean cutout. The process takes just a few seconds.',
-  },
-  {
-    question: 'What image formats are supported?',
-    answer:
-      'We support PNG, JPG/JPEG, and WebP formats. For best results, use images with a clear subject. The maximum file size is 20MB.',
-  },
-  {
-    question: 'Is this tool completely free?',
-    answer:
-      'Yes! You can remove backgrounds for free without creating an account. Create a free account to access your history and process more images per day.',
-  },
-  {
-    question: 'What resolution will my output image be?',
-    answer:
-      'The output image maintains the same resolution as your original input. We output in PNG format to preserve transparency with full quality.',
-  },
-  {
-    question: 'Can I use the results commercially?',
-    answer:
-      'Yes. The processed images are yours to use however you like, including for commercial purposes.',
   },
 ];
 
@@ -123,7 +95,7 @@ export default function PublicRemoveBackgroundPage() {
       </section>
 
       {/* FAQ */}
-      <FaqSection items={FAQ_ITEMS} />
+      <FaqPage category="REMBG" />
 
       {/* CTA */}
       <section className="rounded-2xl bg-primary p-8 text-center text-primary-foreground">

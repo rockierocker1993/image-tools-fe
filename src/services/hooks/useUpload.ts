@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 import { toast } from 'sonner';
-import { useUploadStore } from '@/store/upload.store';
+import { useUploadStore } from '@/services/store/upload.store';
 import { validateImageFile, createImagePreviewUrl } from '@/utils/file.utils';
 
 interface UseUploadOptions {

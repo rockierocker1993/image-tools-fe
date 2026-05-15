@@ -4,7 +4,7 @@ import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { useAuthStore } from '@/store/auth.store';
+import { useAuthStore } from '@/services/store/auth.store';
 import { authApi } from '@/services/api/auth.api';
 import { ROUTES } from '@/constants/routes';
 import type { LoginRequest, RegisterRequest } from '@/types/api.types';

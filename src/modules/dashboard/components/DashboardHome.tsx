@@ -6,9 +6,9 @@ import { Eraser, ZoomIn, ArrowRight, History } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useAuthStore } from '@/store/auth.store';
+import { useAuthStore } from '@/services/store/auth.store';
 import { ROUTES } from '@/constants/routes';
-import { useWarmingUp } from '@/hooks/useWarmingUp';
+import { useJob } from '@/services/hooks/useJob';
 import { useEffect, useRef } from 'react';
 
 const TOOLS = [
@@ -45,7 +45,7 @@ const itemVariants = {
 
 export function DashboardHome() {
   const initialWarmingUp = useRef(true);
-  const { warmingUpAll } = useWarmingUp();
+  const { warmingUpAll } = useJob();
   useEffect(() => {
     if (initialWarmingUp.current) {
       initialWarmingUp.current = false;

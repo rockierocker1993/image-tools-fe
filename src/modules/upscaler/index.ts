@@ -1,2 +1,2 @@
-export { UpscalerPage } from './components/UpscalerPage';
-export { useUpscaler } from './hooks/useUpscaler';
+export { UpscalerPage } from '@/modules/upscaler/components/UpscalerPage';
+export { useJob } from '@/services/hooks/useJob';

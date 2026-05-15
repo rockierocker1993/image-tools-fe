@@ -9,12 +9,11 @@ import { EditorCanvas } from '@/components/editor/EditorCanvas';
 import { EditorThumbnails } from '@/components/editor/EditorThumbnails';
 import { MobileEditorSheet } from '@/components/editor/MobileEditorSheet';
 import { BackgroundPanel } from '@/components/editor/BackgroundPanel';
-import { useUploadStore } from '@/store/upload.store';
-import { useWebSocket } from '@/hooks/useWebSocket';
-import { useEditor } from '@/hooks/useEditor';
-import { useRemoveBackground } from '../hooks/useRemoveBackground';
+import { useUploadStore } from '@/services/store/upload.store';
+import { useWebSocket } from '@/services/hooks/useWebSocket';
+import { useEditor } from '@/services/hooks/useEditor';
 import type { EditorTab } from '@/types/editor.types';
-import { useWarmingUp } from '@/hooks/useWarmingUp';
+import { useJob } from '@/services/hooks/useJob';
 
 export function RemoveBackgroundPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -22,7 +21,7 @@ export function RemoveBackgroundPage() {
   const { status, items, activeItemId, setActiveItem, applyBackground, undoBg, redoBg } = useUploadStore();
   useWebSocket();
   const editor = useEditor();
-  const { handleFileDrop, isPending } = useRemoveBackground();
+  const { handleFileDropRembg, isPendingRembg } = useJob();
 
   const activeItem = items.find((i) => i.id === activeItemId);
   const previewUrl = activeItem?.previewUrl ?? null;
@@ -40,7 +39,7 @@ export function RemoveBackgroundPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resultUrl]);
 
-  const isLoading = status === 'uploading' || isPending || (!!requestId && activeItem?.resultUrl === undefined);
+  const isLoading = status === 'uploading' || isPendingRembg || (!!requestId && activeItem?.resultUrl === undefined);
 
   const thumbnailItems = items.map((item) => ({
     id: item.id,
@@ -55,10 +54,10 @@ export function RemoveBackgroundPage() {
   const handleFileInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files ?? []);
-      if (files.length > 0) handleFileDrop(files);
+      if (files.length > 0) handleFileDropRembg(files);
       e.target.value = '';
     },
-    [handleFileDrop]
+    [handleFileDropRembg]
   );
 
   const handleThumbnailSelect = useCallback(
@@ -72,11 +71,11 @@ export function RemoveBackgroundPage() {
 
   const hasItems = items.length > 0;
 
-  const { warmingUpRemoveBackground } = useWarmingUp();
+  const { warmingUpRembg } = useJob();
 
   useEffect(() => {
-    warmingUpRemoveBackground();
-  }, [warmingUpRemoveBackground]);
+    warmingUpRembg();
+  }, [warmingUpRembg]);
 
   return (
     <TooltipProvider>
@@ -105,8 +104,8 @@ export function RemoveBackgroundPage() {
               className="flex flex-1 flex-col items-center justify-center"
             >
               <UploadArea
-                onFileDrop={handleFileDrop}
-                isLoading={isPending}
+                onFileDrop={handleFileDropRembg}
+                isLoading={isPendingRembg}
                 className="w-full max-w-2xl"
               />
             </motion.div>

@@ -1,27 +1,35 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus } from 'lucide-react';
+import { useFaq } from '@/services/hooks/useFaq';
+import { useFaqStore } from '@/services/store/faq.store';
 
-interface FaqItem {
-  question: string;
-  answer: string;
-}
 
-interface FaqSectionProps {
-  items: FaqItem[];
+interface FaqPageProps {
+  category: string;
   title?: string;
 }
 
-export function FaqSection({ items, title = 'Frequently Asked Questions' }: FaqSectionProps) {
+export function FaqPage({ category, title = 'Frequently Asked Questions' }: FaqPageProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  
+  const { getFaqRembg, getFaqUpscaler } = useFaq();
+  const { faqsRembg, faqsUpscale } = useFaqStore();
+  useEffect(() => {
+    if (category === 'REMBG') {
+      getFaqRembg();
+    } else if (category === 'UPSCALE') {
+      getFaqUpscaler();
+    }
+  }, [category, getFaqRembg, getFaqUpscaler]);
+  const faqs = category === 'REMBG' ? faqsRembg : faqsUpscale;
+  console.log('FAQs:', faqs);
   return (
     <section className="space-y-6">
       <h2 className="text-center text-2xl font-bold tracking-tight">{title}</h2>
       <div className="mx-auto max-w-2xl divide-y rounded-2xl border">
-        {items.map((item, index) => (
+        {faqs.map((item, index) => (
           <div key={index}>
             <button
               onClick={() => setOpenIndex(openIndex === index ? null : index)}

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useEditorStore } from '@/store/editor.store';
+import { useEditorStore } from '@/services/store/editor.store';
 import { downloadImage } from '@/utils/image.utils';
 import { toast } from 'sonner';
 import type { EditorTab } from '@/types/editor.types';

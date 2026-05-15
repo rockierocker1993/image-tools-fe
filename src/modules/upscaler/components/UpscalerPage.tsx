@@ -10,12 +10,11 @@ import { EditorThumbnails } from '@/components/editor/EditorThumbnails';
 import { MobileEditorSheet } from '@/components/editor/MobileEditorSheet';
 import { BackgroundPanel } from '@/components/editor/BackgroundPanel';
 import { Button } from '@/components/ui/button';
-import { useUploadStore } from '@/store/upload.store';
-import { useWebSocket } from '@/hooks/useWebSocket';
-import { useEditor } from '@/hooks/useEditor';
-import { useUpscaler } from '../hooks/useUpscaler';
+import { useUploadStore } from '@/services/store/upload.store';
+import { useWebSocket } from '@/services/hooks/useWebSocket';
+import { useEditor } from '@/services/hooks/useEditor';
 import type { EditorTab } from '@/types/editor.types';
-import { useWarmingUp } from '@/hooks/useWarmingUp';
+import { useJob } from '@/services/hooks/useJob';
 
 export function UpscalerPage() {
   const [scaleFactor, setScaleFactor] = useState<2 | 4>(2);
@@ -24,7 +23,7 @@ export function UpscalerPage() {
   const { status, items, activeItemId, setActiveItem, applyBackground, undoBg, redoBg } = useUploadStore();
   useWebSocket();
   const editor = useEditor();
-  const { handleFileDrop, isPending } = useUpscaler(scaleFactor);
+  const { handleFileDropUpscaler, isPendingUpscaler } = useJob();
 
   const activeItem = items.find((i) => i.id === activeItemId);
   const previewUrl = activeItem?.previewUrl ?? null;
@@ -42,8 +41,8 @@ export function UpscalerPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resultUrl]);
 
-  const isLoading = status === 'uploading' || isPending || (!!requestId && activeItem?.resultUrl === undefined);
-  console.log('isLoading:', { status, isPending, requestId, resultUrl, activeItem });
+  const isLoading = status === 'uploading' || isPendingUpscaler || (!!requestId && activeItem?.resultUrl === undefined);
+  console.log('isLoading:', { status, isPendingUpscaler, requestId, resultUrl, activeItem });
   const thumbnailItems = items.map((item) => ({
     id: item.id,
     url: item.resultUrl ?? item.previewUrl,
@@ -57,10 +56,10 @@ export function UpscalerPage() {
   const handleFileInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files ?? []);
-      if (files.length > 0) handleFileDrop(files);
+      if (files.length > 0) handleFileDropUpscaler(files);
       e.target.value = '';
     },
-    [handleFileDrop]
+    [handleFileDropUpscaler]
   );
 
   const handleThumbnailSelect = useCallback(
@@ -74,7 +73,7 @@ export function UpscalerPage() {
 
   const hasItems = items.length > 0;
 
-  const { warmingUpUpscaler } = useWarmingUp();
+  const { warmingUpUpscaler } = useJob();
   useEffect(() => {
     warmingUpUpscaler();
   }, [warmingUpUpscaler]);
@@ -122,8 +121,8 @@ export function UpscalerPage() {
               </div>
 
               <UploadArea
-                onFileDrop={handleFileDrop}
-                isLoading={isPending}
+                onFileDrop={handleFileDropUpscaler}
+                isLoading={isPendingUpscaler}
                 className="w-full max-w-2xl"
                 description={`Drop your image to upscale ${scaleFactor}x`}
               />

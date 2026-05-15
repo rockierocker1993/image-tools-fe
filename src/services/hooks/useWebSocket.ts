@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
-import { useWebSocketStore } from '@/store/websocket.store';
+import { useWebSocketStore } from '@/services/store/websocket.store';
 import { socketService } from '@/services/websocket/socket.service';
-import { useAuthStore } from '@/store/auth.store';
-import { useUploadStore } from '@/store/upload.store';
+import { useAuthStore } from '@/services/store/auth.store';
+import { useUploadStore } from '@/services/store/upload.store';
 import { getOrCreateGuestToken } from '@/lib/auth';
 import type { WebSocketJobEvent } from '@/types/job.types';
 
