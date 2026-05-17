@@ -25,7 +25,7 @@ const initialState: EditorState = {
   historyIndex: -1,
 };
 
-export const useEditorStore = create<EditorStore>()((set, get) => ({
+const createEditorStore = () => create<EditorStore>()((set, get) => ({
   ...initialState,
 
   setOriginalImage: (url) => set({ originalImageUrl: url }),
@@ -70,3 +70,12 @@ export const useEditorStore = create<EditorStore>()((set, get) => ({
 
   reset: () => set(initialState),
 }));
+
+export type EditorStoreHook = ReturnType<typeof createEditorStore>;
+
+/** Isolated editor store for the Remove Background module */
+export const useRembgEditorStore = createEditorStore();
+/** Isolated editor store for the Upscaler module */
+export const useUpscalerEditorStore = createEditorStore();
+/** Legacy export kept for backward compatibility */
+export const useEditorStore = useRembgEditorStore;

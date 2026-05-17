@@ -3,10 +3,10 @@ import type { CreateJobRembgResponse, CreateJobUpscalerResponse, FaqResponse } f
 import type { BaseResponse } from '@/types/baseResponse.types';
 
 const PATH = {
-    CREATE_JOB_REMOVEBG: '/job/create-job/rembg',
-    WARMING_UP_REMOVEBG: '/job/warming-up/rembg',
-    CREATE_JOB_UPSCALER: '/job/create-job/upscale',
-    WARMING_UP_UPSCALER: '/job/warming-up/upscale',
+    CREATE_JOB_REMOVEBG: '/tools/job/create-job/rembg',
+    WARMING_UP_REMOVEBG: '/tools/job/warming-up/rembg',
+    CREATE_JOB_UPSCALER: '/tools/job/create-job/upscale',
+    WARMING_UP_UPSCALER: '/tools/job/warming-up/upscale',
 };
 
 export const jobApi = {

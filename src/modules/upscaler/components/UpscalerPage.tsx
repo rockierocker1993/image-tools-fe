@@ -10,7 +10,8 @@ import { EditorThumbnails } from '@/components/editor/EditorThumbnails';
 import { MobileEditorSheet } from '@/components/editor/MobileEditorSheet';
 import { BackgroundPanel } from '@/components/editor/BackgroundPanel';
 import { Button } from '@/components/ui/button';
-import { useUploadStore } from '@/services/store/upload.store';
+import { useUpscalerStore } from '@/services/store/upload.store';
+import { useUpscalerEditorStore } from '@/services/store/editor.store';
 import { useWebSocket } from '@/services/hooks/useWebSocket';
 import { useEditor } from '@/services/hooks/useEditor';
 import type { EditorTab } from '@/types/editor.types';
@@ -20,9 +21,9 @@ export function UpscalerPage() {
   const [scaleFactor, setScaleFactor] = useState<2 | 4>(2);
   const [activePanel, setActivePanel] = useState<EditorTab | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { status, items, activeItemId, setActiveItem, applyBackground, undoBg, redoBg } = useUploadStore();
+  const { status, items, activeItemId, setActiveItem, applyBackground, undoBg, redoBg } = useUpscalerStore();
   useWebSocket();
-  const editor = useEditor();
+  const editor = useEditor(useUpscalerEditorStore);
   const { handleFileDropUpscaler, isPendingUpscaler } = useJob();
 
   const activeItem = items.find((i) => i.id === activeItemId);

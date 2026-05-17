@@ -4,21 +4,23 @@ import { useEffect, useCallback } from 'react';
 import { useWebSocketStore } from '@/services/store/websocket.store';
 import { socketService } from '@/services/websocket/socket.service';
 import { useAuthStore } from '@/services/store/auth.store';
-import { useUploadStore } from '@/services/store/upload.store';
+import { useRembgStore, useUpscalerStore } from '@/services/store/upload.store';
 import { getOrCreateGuestToken } from '@/lib/auth';
 import type { WebSocketJobEvent } from '@/types/job.types';
 
 export const useWebSocket = () => {
   const { accessToken } = useAuthStore();
   const { jobResults, setConnectionState, updateJobStatus } = useWebSocketStore();
-  const { setItemResultByRequestId } = useUploadStore();
+  const { setItemResultByRequestId: setRembgResult } = useRembgStore();
+  const { setItemResultByRequestId: setUpscalerResult } = useUpscalerStore();
 
   const handleJobEvent = useCallback(
     (event: WebSocketJobEvent) => {
       updateJobStatus(event.requestId, event.status, event.webpUrl, event.module);
-      setItemResultByRequestId(event.requestId, event.webpUrl ?? null);
+      setRembgResult(event.requestId, event.webpUrl ?? null);
+      setUpscalerResult(event.requestId, event.webpUrl ?? null);
     },
-    [updateJobStatus, setItemResultByRequestId]
+    [updateJobStatus, setRembgResult, setUpscalerResult]
   );
 
   useEffect(() => {

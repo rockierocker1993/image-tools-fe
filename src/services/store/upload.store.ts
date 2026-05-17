@@ -50,7 +50,7 @@ const initialState: UploadState = {
   activeItemId: null,
 };
 
-export const useUploadStore = create<UploadStore>()((set) => ({
+const createUploadStore = () => create<UploadStore>()((set) => ({
   ...initialState,
 
   addItem: (previewUrl) => {
@@ -131,3 +131,12 @@ export const useUploadStore = create<UploadStore>()((set) => ({
 
   reset: () => set(initialState),
 }));
+
+export type UploadStoreHook = ReturnType<typeof createUploadStore>;
+
+/** Isolated store for the Remove Background module */
+export const useRembgStore = createUploadStore();
+/** Isolated store for the Upscaler module */
+export const useUpscalerStore = createUploadStore();
+/** Legacy singleton kept for useUpload.ts backward compatibility */
+export const useUploadStore = createUploadStore();

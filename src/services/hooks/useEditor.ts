@@ -1,13 +1,13 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useEditorStore } from '@/services/store/editor.store';
+import type { EditorStoreHook } from '@/services/store/editor.store';
 import { downloadImage } from '@/utils/image.utils';
 import { toast } from 'sonner';
 import type { EditorTab } from '@/types/editor.types';
 
-export const useEditor = () => {
-  const store = useEditorStore();
+export const useEditor = (useStore: EditorStoreHook) => {
+  const store = useStore();
 
   const handleDownload = useCallback(
     async (format: 'png' | 'jpg' | 'webp' = 'png') => {

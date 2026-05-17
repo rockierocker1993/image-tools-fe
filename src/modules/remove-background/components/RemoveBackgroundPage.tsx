@@ -9,7 +9,8 @@ import { EditorCanvas } from '@/components/editor/EditorCanvas';
 import { EditorThumbnails } from '@/components/editor/EditorThumbnails';
 import { MobileEditorSheet } from '@/components/editor/MobileEditorSheet';
 import { BackgroundPanel } from '@/components/editor/BackgroundPanel';
-import { useUploadStore } from '@/services/store/upload.store';
+import { useRembgStore } from '@/services/store/upload.store';
+import { useRembgEditorStore } from '@/services/store/editor.store';
 import { useWebSocket } from '@/services/hooks/useWebSocket';
 import { useEditor } from '@/services/hooks/useEditor';
 import type { EditorTab } from '@/types/editor.types';
@@ -18,9 +19,9 @@ import { useJob } from '@/services/hooks/useJob';
 export function RemoveBackgroundPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [activePanel, setActivePanel] = useState<EditorTab | null>(null);
-  const { status, items, activeItemId, setActiveItem, applyBackground, undoBg, redoBg } = useUploadStore();
+  const { status, items, activeItemId, setActiveItem, applyBackground, undoBg, redoBg } = useRembgStore();
   useWebSocket();
-  const editor = useEditor();
+  const editor = useEditor(useRembgEditorStore);
   const { handleFileDropRembg, isPendingRembg } = useJob();
 
   const activeItem = items.find((i) => i.id === activeItemId);

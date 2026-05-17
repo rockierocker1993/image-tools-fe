@@ -1,29 +1,30 @@
 'use client';
 
 import { jobApi } from '@/services/api/job.api';
-import { useUploadStore } from '@/services/store/upload.store';
+import { useRembgStore, useUpscalerStore } from '@/services/store/upload.store';
 import { createImagePreviewUrl, validateImageFile } from '@/utils/file.utils';
 import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export const useJob = () => {
-    const { addItem, setItemRequestId, setStatus, setError } = useUploadStore();
+    const rembgStore = useRembgStore();
+    const upscalerStore = useUpscalerStore();
     const createJobRembg = useMutation({
         mutationFn: (file: File) => jobApi.createJobRembg(file),
         onMutate: (file) => {
             const previewUrl = createImagePreviewUrl(file);
-            const itemId = addItem(previewUrl);
-            setStatus('uploading');
+            const itemId = rembgStore.addItem(previewUrl);
+            rembgStore.setStatus('uploading');
             return { itemId };
         },
         onSuccess: (job, _variables, context) => {
             if (context?.itemId) {
-                setItemRequestId(context.itemId, job.data?.image_id ?? null);
+                rembgStore.setItemRequestId(context.itemId, job.data?.image_id ?? null);
             }
-            setStatus('success');
+            rembgStore.setStatus('success');
         },
         onError: (error: Error) => {
-            setError(error.message);
+            rembgStore.setError(error.message);
             toast.error('Failed to remove background. Please try again.');
         },
     });
@@ -42,18 +43,18 @@ export const useJob = () => {
         mutationFn: (file: File) => jobApi.createJobUpscaler(file),
         onMutate: (file) => {
             const previewUrl = createImagePreviewUrl(file);
-            const itemId = addItem(previewUrl);
-            setStatus('uploading');
+            const itemId = upscalerStore.addItem(previewUrl);
+            upscalerStore.setStatus('uploading');
             return { itemId };
         },
         onSuccess: (job, _variables, context) => {
             if (context?.itemId) {
-                setItemRequestId(context.itemId, job.data?.image_id ?? null);
+                upscalerStore.setItemRequestId(context.itemId, job.data?.image_id ?? null);
             }
-            setStatus('success');
+            upscalerStore.setStatus('success');
         },
         onError: (error: Error) => {
-            setError(error.message);
+            upscalerStore.setError(error.message);
             toast.error('Failed to upscale image. Please try again.');
         },
     });
