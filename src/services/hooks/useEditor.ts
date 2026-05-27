@@ -4,13 +4,13 @@ import { useCallback } from 'react';
 import type { EditorStoreHook } from '@/services/store/editor.store';
 import { downloadImage } from '@/utils/image.utils';
 import { toast } from 'sonner';
-import type { EditorTab } from '@/types/editor.types';
+import type { DownloadFormat, EditorTab } from '@/types/editor.types';
 
-export const useEditor = (useStore: EditorStoreHook) => {
-  const store = useStore();
+export const useEditor = (useEditorStore: EditorStoreHook) => {
+  const store = useEditorStore();
 
   const handleDownload = useCallback(
-    async (format: 'png' | 'jpg' | 'webp' = 'png') => {
+    async (format: DownloadFormat) => {
       if (!store.resultImageUrl) {
         toast.error('No image to download.');
         return;

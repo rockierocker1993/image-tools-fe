@@ -3,10 +3,11 @@ import { ZoomIn, Maximize2, Sparkles, ArrowRight } from 'lucide-react';
 import { UpscalerPage } from '@/modules/upscaler';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FaqSection } from '@/components/shared/FaqSection';
 import { BeforeAfterShowcase } from '@/components/shared/BeforeAfterShowcase';
 import Link from 'next/link';
 import { ROUTES } from '@/constants/routes';
+import { FaqPage } from '@/modules/public-faq';
+import { VectorPage } from '@/modules/vector';
 
 export const metadata: Metadata = {
   title: 'AI Image Upscaler - Enhance Resolution Free',
@@ -31,34 +32,6 @@ const FEATURES = [
   },
 ];
 
-const FAQ_ITEMS = [
-  {
-    question: 'How does AI upscaling differ from regular resizing?',
-    answer:
-      'Regular resizing just stretches pixels, causing blurring and artifacts. AI upscaling analyzes image content and intelligently reconstructs fine details, textures, and edges — producing sharp, natural-looking results.',
-  },
-  {
-    question: 'What scale factors are available?',
-    answer:
-      'We support 2× (doubles width and height) and 4× (quadruples width and height). A 1000×1000px image becomes 4000×4000px at 4× — ideal for printing and large-format displays.',
-  },
-  {
-    question: 'What file formats and sizes are supported?',
-    answer:
-      'We accept PNG, JPG/JPEG, and WebP images up to 20MB. Output is delivered as a high-quality PNG.',
-  },
-  {
-    question: 'Is there a limit on how many images I can upscale?',
-    answer:
-      'Free users can upscale images without an account. Creating a free account increases your daily limit and gives you access to your processing history.',
-  },
-  {
-    question: 'Will upscaling improve a very blurry or low-quality photo?',
-    answer:
-      'AI upscaling works best with images that have reasonable original quality. Severely blurry or heavily compressed images will improve, but starting with better source material always yields better results.',
-  },
-];
-
 const SHOWCASE_ITEMS = [
   { before: '/showcase/before-upscale-1.jpg', after: '/showcase/after-upscale-1.png', label: 'Portrait' },
   { before: '/showcase/before-upscale-2.jpg', after: '/showcase/after-upscale-2.png', label: 'Landscape' },
@@ -74,17 +47,15 @@ export default function PublicVectorPage() {
       <section className="text-center">
         <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
           <ZoomIn className="h-4 w-4" />
-          AI Image Upscaler
+          AI Powered Vectorization
         </div>
         <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-          Enhance Your Images<br className="hidden sm:block" /> With AI
+          Trace Pixels To Vectors in Full Color
         </h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Upscale any image up to 4× its original size without losing quality.
-          Our AI fills in details that regular resizing destroys — completely free.
+          Convert PNG, JPG, GIF, and WebP images to clean SVG, PDF, EPS, and DXF vectors. Fully automatically.<br className="hidden sm:block" /> Using AI.
         </p>
         <div className="mt-6 flex items-center justify-center gap-3 flex-wrap">
-          <span className="text-sm text-muted-foreground">✓ 2× and 4× upscale</span>
           <span className="text-sm text-muted-foreground">✓ AI-powered detail</span>
           <span className="text-sm text-muted-foreground">✓ No watermarks</span>
         </div>
@@ -92,7 +63,7 @@ export default function PublicVectorPage() {
 
       {/* Upload Tool */}
       <section>
-        <UpscalerPage />
+        <VectorPage />
       </section>
 
       {/* Before / After */}
@@ -124,7 +95,7 @@ export default function PublicVectorPage() {
       </section>
 
       {/* FAQ */}
-      <FaqSection items={FAQ_ITEMS} />
+      <FaqPage category="VECTOR" />
 
       {/* CTA */}
       <section className="rounded-2xl bg-primary p-8 text-center text-primary-foreground">

@@ -1,6 +1,6 @@
 'use client';
 
-import { jobApi } from '@/services/api/job.api';
+import { jobApi } from '@/services/api/tools/job.api';
 import { useRembgStore, useUpscalerStore } from '@/services/store/upload.store';
 import { createImagePreviewUrl, validateImageFile } from '@/utils/file.utils';
 import { useMutation } from '@tanstack/react-query';

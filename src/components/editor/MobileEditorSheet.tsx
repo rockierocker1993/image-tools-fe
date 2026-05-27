@@ -17,7 +17,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { BackgroundPanel } from '@/components/editor/BackgroundPanel';
-import type { EditorTab } from '@/types/editor.types';
+import type { DownloadFormat, EditorTab } from '@/types/editor.types';
 
 interface MobileEditorSheetProps {
   activeTab: EditorTab | null;
@@ -26,7 +26,7 @@ interface MobileEditorSheetProps {
   canRedo: boolean;
   onUndo: () => void;
   onRedo: () => void;
-  onDownload: (format: 'png' | 'jpg' | 'webp') => void;
+  onDownload: (format: DownloadFormat) => void;
   onApplyBackground?: (url: string) => void;
   onApplyColor?: (color: string | null) => void;
 }
@@ -153,7 +153,7 @@ export function MobileEditorSheet({
                 </Button>
                 <Button
                   size="sm"
-                  onClick={() => { onDownload('png'); setIsOpen(false); }}
+                  onClick={() => { onDownload('pro'); setIsOpen(false); }}
                   className="flex-1"
                 >
                   <Download className="mr-1.5 h-4 w-4" />

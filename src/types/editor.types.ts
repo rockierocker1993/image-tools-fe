@@ -1,4 +1,6 @@
-export type EditorTab = 'cutout' | 'background' | 'effects' | 'adjust' | 'design';
+export type EditorTab = 'cutout' | 'background' | 'effects' | 'adjust' | 'design' | 'edit-vector';
+
+export type DownloadFormat = 'pro' | 'free';
 
 export interface EditorState {
   originalImageUrl: string | null;
@@ -18,6 +20,6 @@ export interface EditorHistoryEntry {
 
 export interface DownloadOption {
   label: string;
-  format: 'png' | 'jpg' | 'webp';
+  format: DownloadFormat;
   quality?: number;
 }

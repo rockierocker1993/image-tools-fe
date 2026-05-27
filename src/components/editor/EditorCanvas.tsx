@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { ImageCompare } from '@/components/shared/ImageCompare';
@@ -7,9 +8,17 @@ import { ImageCompare } from '@/components/shared/ImageCompare';
 interface EditorCanvasProps {
   originalUrl: string | null;
   resultUrl: string | null;
+  /** Raw SVG markup string. When set (and `resultUrl` is empty), it is rendered as the result. */
+  resultSvg?: string | null;
   isLoading?: boolean;
   bgColor?: string | null;
   bgImageUrl?: string | null;
+}
+
+/** Convert raw SVG markup to a data URL usable as an <img> src. */
+function svgStringToDataUrl(svg: string): string {
+  // Use UTF-8 URL encoding (safer than btoa for non-ASCII characters).
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
 const CHECKER_BG = `
@@ -19,7 +28,14 @@ const CHECKER_BG = `
   linear-gradient(-45deg, transparent 75%, #ccc 75%)
 `;
 
-export function EditorCanvas({ originalUrl, resultUrl, isLoading, bgColor, bgImageUrl }: EditorCanvasProps) {
+export function EditorCanvas({ originalUrl, resultUrl, resultSvg, isLoading, bgColor, bgImageUrl }: EditorCanvasProps) {
+  // Prefer an explicit resultUrl; otherwise derive one from the SVG string.
+  const effectiveResultUrl = useMemo(() => {
+    if (resultUrl) return resultUrl;
+    if (resultSvg && resultSvg.trim().length > 0) return svgStringToDataUrl(resultSvg);
+    return null;
+  }, [resultUrl, resultSvg]);
+
   return (
     <div
       className="relative flex flex-1 items-center justify-center overflow-hidden rounded-xl"
@@ -34,13 +50,13 @@ export function EditorCanvas({ originalUrl, resultUrl, isLoading, bgColor, bgIma
         <div className="text-center text-muted-foreground">
           <p className="text-sm">No image loaded</p>
         </div>
-      ) : resultUrl ? (
+      ) : effectiveResultUrl ? (
         /* Result available — show animated compare slider */
         <ImageCompare
           minHeight="230px"
-          key={resultUrl}
+          key={effectiveResultUrl}
           originalUrl={originalUrl}
-          resultUrl={resultUrl}
+          resultUrl={effectiveResultUrl}
           autoPlay
           bgColor={bgColor}
           bgImageUrl={bgImageUrl}

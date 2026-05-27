@@ -6,14 +6,14 @@ import { usePathname } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
-  Eraser,
-  ZoomIn,
   History,
   CreditCard,
   Settings,
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Paintbrush,
+  Wallpaper,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -24,8 +24,7 @@ import { Separator } from '@/components/ui/separator';
 
 const NAV_ITEMS = [
   { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: LayoutDashboard },
-  { href: ROUTES.REMOVE_BACKGROUND, label: 'Remove Background', icon: Eraser },
-  { href: ROUTES.UPSCALER, label: 'Upscaler', icon: ZoomIn },
+  { href: ROUTES.TOOLS, label: 'Image Tools', icon: Wallpaper },
   { href: ROUTES.HISTORY, label: 'History', icon: History },
   { href: ROUTES.BILLING, label: 'Billing', icon: CreditCard },
   { href: ROUTES.SETTINGS, label: 'Settings', icon: Settings },

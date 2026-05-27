@@ -3,13 +3,26 @@ export interface CreateJobRembgResponse {
   image_id: string | null;
 }
 
-export interface CreateJobUpscalerResponse{
+export interface CreateJobUpscalerResponse {
   image_id: string | null;
 }
 
 export interface FaqResponse {
   question: string | null;
   answer: string | null;
+}
+
+export interface TraceSvgRegion {
+  id: string;
+  color: string;
+  element_ids: string[];
+  neighbors: string[];
+}
+
+export interface TraceSvgResponse {
+  image_id: string | null;
+  svg: string | null;
+  regions: TraceSvgRegion[] | null;
 }
 
 export interface WebSocketJobEvent {

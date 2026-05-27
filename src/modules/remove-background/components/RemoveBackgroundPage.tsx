@@ -15,6 +15,7 @@ import { useWebSocket } from '@/services/hooks/useWebSocket';
 import { useEditor } from '@/services/hooks/useEditor';
 import type { EditorTab } from '@/types/editor.types';
 import { useJob } from '@/services/hooks/useJob';
+import { Image } from 'lucide-react';
 
 export function RemoveBackgroundPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -78,6 +79,15 @@ export function RemoveBackgroundPage() {
     warmingUpRembg();
   }, [warmingUpRembg]);
 
+  const TABS: { id: EditorTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    // { id: 'cutout', label: 'Cutout', icon: Scissors },
+    { id: 'background', label: 'Background', icon: Image },
+    // { id: 'effects', label: 'Effects', icon: Sparkles },
+    // { id: 'adjust', label: 'Adjust', icon: SlidersHorizontal },
+    // { id: 'design', label: 'Design', icon: Layout },
+  ];
+
+
   return (
     <TooltipProvider>
       <input
@@ -120,13 +130,21 @@ export function RemoveBackgroundPage() {
               {/* Desktop toolbar */}
               <div className="hidden md:block">
                 <EditorToolbar
+                  tabs={TABS}
                   activeTab={activePanel}
                   onTabChange={setActivePanel}
+                  canUndoRedo={true}
                   canUndo={canUndo}
                   canRedo={canRedo}
                   onUndo={() => activeItemId && undoBg(activeItemId)}
                   onRedo={() => activeItemId && redoBg(activeItemId)}
                   onDownload={editor.handleDownload}
+                  downloadOptions={[
+                    { label: 'Pro', format: 'pro' },
+                    { label: 'Free 500 x 500', format: 'free' },
+                  ]}
+                  isSingleDownloadOption={false}
+                  singleDownloadOptionFormat="pro"
                 />
               </div>
 

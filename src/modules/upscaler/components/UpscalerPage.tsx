@@ -79,6 +79,8 @@ export function UpscalerPage() {
     warmingUpUpscaler();
   }, [warmingUpUpscaler]);
 
+  const TABS: { id: EditorTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [];
+
   return (
     <TooltipProvider>
       <input
@@ -137,8 +139,10 @@ export function UpscalerPage() {
             >
               <div className="hidden md:block">
                 <EditorToolbar
+                  tabs={TABS}
                   activeTab={activePanel}
                   onTabChange={setActivePanel}
+                  canUndoRedo={false}
                   canUndo={canUndo}
                   canRedo={canRedo}
                   onUndo={() => activeItemId && undoBg(activeItemId)}

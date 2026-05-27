@@ -8,14 +8,15 @@ import { toast } from 'sonner';
 const CATEGORY = {
     REMBG: 'REMBG',
     UPSCALER: 'UPSCALE',
+    VECTOR: 'VECTOR',
 } as const;
 
 export const useFaq = () => {
-    const { setFaqsRembg, setFaqsUpscale } = useFaqStore();
+    const { setFaqs } = useFaqStore();
     const getFaqRembg = useMutation({
         mutationFn: () => faqApi.faq(CATEGORY.REMBG),
         onSuccess: (response) => {
-            setFaqsRembg(response.data ?? []);
+            setFaqs(response.data ?? []);
         },
         onError: (error: Error) => {
             console.error('Failed to fetch FAQ:', error);
@@ -26,7 +27,18 @@ export const useFaq = () => {
     const getFaqUpscaler = useMutation({
         mutationFn: () => faqApi.faq(CATEGORY.UPSCALER),
         onSuccess: (response) => {
-            setFaqsUpscale(response.data ?? []);
+            setFaqs(response.data ?? []);
+        },
+        onError: (error: Error) => {
+            console.error('Failed to fetch FAQ:', error);
+            toast.error('Failed to fetch FAQ. Please try again.');
+        },
+    });
+
+    const getFaqVector = useMutation({
+        mutationFn: () => faqApi.faq(CATEGORY.VECTOR),
+        onSuccess: (response) => {
+            setFaqs(response.data ?? []);
         },
         onError: (error: Error) => {
             console.error('Failed to fetch FAQ:', error);
@@ -37,5 +49,6 @@ export const useFaq = () => {
     return {
         getFaqRembg: getFaqRembg.mutate,
         getFaqUpscaler: getFaqUpscaler.mutate,
+        getFaqVector: getFaqVector.mutate,
     };
 }

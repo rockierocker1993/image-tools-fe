@@ -20,12 +20,6 @@ export function PublicLayout({ children }: PublicLayoutProps) {
           </Link>
 
           <nav className="flex items-center gap-1 sm:gap-4">
-            <Link href={ROUTES.PUBLIC_REMOVE_BACKGROUND} className="hidden sm:block">
-              <Button variant="ghost" size="sm">Remove Background</Button>
-            </Link>
-            <Link href={ROUTES.PUBLIC_UPSCALER} className="hidden sm:block">
-              <Button variant="ghost" size="sm">Upscaler</Button>
-            </Link>
             <Link href={ROUTES.LOGIN}>
               <Button size="sm">Sign In</Button>
             </Link>

@@ -14,22 +14,23 @@ interface FaqPageProps {
 
 export function FaqPage({ category, title = 'Frequently Asked Questions' }: FaqPageProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
-  const { getFaqRembg, getFaqUpscaler } = useFaq();
-  const { faqsRembg, faqsUpscale } = useFaqStore();
+  const { getFaqRembg, getFaqUpscaler, getFaqVector } = useFaq();
+  const { faqs } = useFaqStore();
   useEffect(() => {
     if (category === 'REMBG') {
       getFaqRembg();
     } else if (category === 'UPSCALE') {
       getFaqUpscaler();
+    } else if (category === 'VECTOR') {
+      getFaqVector();
     }
-  }, [category, getFaqRembg, getFaqUpscaler]);
-  const faqs = category === 'REMBG' ? faqsRembg : faqsUpscale;
-  console.log('FAQs:', faqs);
+  }, [category, getFaqRembg, getFaqUpscaler, getFaqVector]);
+  const faqsToDisplay = faqs;
   return (
     <section className="space-y-6">
       <h2 className="text-center text-2xl font-bold tracking-tight">{title}</h2>
       <div className="mx-auto max-w-2xl divide-y rounded-2xl border">
-        {faqs.map((item, index) => (
+        {faqsToDisplay.map((item, index) => (
           <div key={index}>
             <button
               onClick={() => setOpenIndex(openIndex === index ? null : index)}
