@@ -76,7 +76,7 @@ export function VectorEditorOverlay({
     // Apply region edits to produce the SVG actually rendered in the canvas.
     const displayedSvg = useMemo(
         () => { // Ensure edits are only applied to visible regions.
-            return deriveEditedSvg(svg, baseEditRegions, visibleCount, highlightedRegionId)
+            return deriveEditedSvg(svg, baseEditRegions, editRegions, visibleCount, highlightedRegionId)
         }
         ,
         [svg, baseEditRegions, editRegions, highlightedRegionId]
@@ -96,8 +96,6 @@ export function VectorEditorOverlay({
 
     const handleSave = useCallback(() => {
         onSave?.(displayedSvg, editRegions);
-        toast.success("Changes saved");
-        onOpenChange(false);
     }, [onSave, displayedSvg, editRegions, onOpenChange]);
 
     const handleCopyColor = useCallback((regionId: string, targetColor: string | null) => {
@@ -163,8 +161,8 @@ export function VectorEditorOverlay({
                                     baseRegions={regions ?? []}
                                     visibleCount={visibleCount}
                                     highlightedRegionId={highlightedRegionId}
+                                    onSetEditRegions={setEditRegions}
                                     onHighlight={setHighlightedRegionId}
-                                    onCopyColor={handleCopyColor}
                                     onSetVisibleCount={setVisibleCount}
                                 />
                             </div>

@@ -14,6 +14,7 @@ import type { EditorTab } from '@/types/editor.types';
 import { useVector } from '@/services/hooks/useVector';
 import { VectorSquare } from 'lucide-react';
 import { VectorEditorOverlay } from '@/components/editorvector';
+import { EditableRegion } from '@/components/editorvector/lib/svg-edit';
 
 /** Download an SVG string as a .svg file. */
 function downloadSvg(svg: string, filename = 'vector.svg') {
@@ -84,6 +85,19 @@ export function VectorPage() {
       toast.error('Download failed. Please try again.');
     }
   }, [resultSvg, activeItemId]);
+
+  const handleSave = function (svg: string | null, regions: EditableRegion[]) {
+    if (!activeItemId) return;
+    setActivePanel(null); // Close the editor overlay.
+    // Update the current item with the edited SVG. In a real app, you'd also want to persist this change.
+    // Here we directly update the store for simplicity, but in a more complex app you might want to handle this differently.
+    useVectorStore.setState((state) => ({
+      items: state.items.map((item) =>
+        item.id === activeItemId ? { ...item, svg: svg, regions: regions } : item
+      ),
+    }));
+    toast.success('Changes saved!');
+  }
 
   const hasItems = items.length > 0;
 
@@ -180,6 +194,7 @@ export function VectorPage() {
         isLoading={isLoading}
         onUpload={handleAddMore}
         onDownloadSvg={handleDownload}
+        onSave={handleSave}
       />
     </TooltipProvider>
   );

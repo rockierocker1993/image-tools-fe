@@ -17,8 +17,8 @@ export interface VectorEditorSidebarProps {
     highlightedRegionId: string | null;
     onHighlight: (id: string | null) => void;
     /** Copy `targetColor` onto `regionId`. Pass null to revert. */
-    onUpdateColor: (regionId: string, targetColor: string | null) => void;
     onSetVisibleCount: (n: number) => void;
+    onSetEditRegions: (editableRegions: EditableRegion[]) => void;
 }
 
 /** Sidebar shown to the right of the canvas — region circles + palette presets. */
@@ -29,8 +29,8 @@ export function VectorEditorSidebar({
     visibleCount,
     highlightedRegionId,
     onHighlight,
-    onUpdateColor,
     onSetVisibleCount,
+    onSetEditRegions,
 }: VectorEditorSidebarProps) {
     return (
         <AnimatePresence initial={false}>
@@ -50,7 +50,7 @@ export function VectorEditorSidebar({
                                     regions={regions}
                                     highlightedRegionId={highlightedRegionId}
                                     onHighlight={onHighlight}
-                                    onUpdateColor={onUpdateColor}
+                                    onSetEditRegions={onSetEditRegions}
                                 />
                             </div>
 

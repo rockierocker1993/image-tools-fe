@@ -2,15 +2,15 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
-import { type EditableRegion, regionDisplayColor } from "@/components/editorvector/lib/svg-edit";
+import { type EditableRegion } from "@/components/editorvector/lib/svg-edit";
 
 export interface RegionBubblesProps {
     regions: EditableRegion[];
     highlightedRegionId: string | null;
     onHighlight: (id: string | null) => void;
-    onUpdateColor: (regionId: string, targetColor: string | null) => void;
+    onSetEditRegions: (editableRegions: EditableRegion[]) => void;
 }
-export function RegionBubbles({ regions, highlightedRegionId, onHighlight, onUpdateColor }: RegionBubblesProps) {
+export function RegionBubbles({ regions, highlightedRegionId, onHighlight, onSetEditRegions }: RegionBubblesProps) {
 
     const [dragId, setDragId] = useState<string | null>(null);
     const [hoverTargetId, setHoverTargetId] = useState<string | null>(null);
@@ -32,6 +32,7 @@ export function RegionBubbles({ regions, highlightedRegionId, onHighlight, onUpd
     }
 
     function addChildToRegion(list: EditableRegion[], targetDropId: string, sourceDropId: string): EditableRegion[] {
+        console.log("addChildToRegion", { targetDropId, sourceDropId });
         let parentOfTarget: EditableRegion | null = null;
         if (targetDropId !== "root") {
             parentOfTarget = getParentRegion(list, targetDropId);
@@ -72,7 +73,7 @@ export function RegionBubbles({ regions, highlightedRegionId, onHighlight, onUpd
         // =========================
 
         if (targetDropId === "root") {
-            return [
+            const result = [
                 ...cleaned,
                 // children source jadi root
                 ...(regionToMove.children || []),
@@ -82,20 +83,17 @@ export function RegionBubbles({ regions, highlightedRegionId, onHighlight, onUpd
                     children: []
                 }
             ];
+            onSetEditRegions(result);
+            return result;
         }
 
         // =========================
         // ATTACH TO TARGET
         // =========================
 
-        function attach(
-            regions: EditableRegion[]
-        ): EditableRegion[] {
-
+        function attach(regions: EditableRegion[]): EditableRegion[] {
             return regions.map(region => {
-
                 if (region.id !== targetDropId) {
-
                     return {
                         ...region,
                         children: region.children
@@ -103,31 +101,24 @@ export function RegionBubbles({ regions, highlightedRegionId, onHighlight, onUpd
                             : []
                     };
                 }
-
                 const children = [
                     ...(region.children || [])
                 ];
-
                 // source children dipindah
                 if (regionToMove.children?.length) {
-
                     for (const child of regionToMove.children) {
-
                         if (!children.some(c => c.id === child.id)) {
                             children.push(child);
                         }
                     }
                 }
-
                 // source juga jadi child
                 if (!children.some(c => c.id === regionToMove!.id)) {
-
                     children.push({
                         ...regionToMove,
                         children: []
                     });
                 }
-
                 return {
                     ...region,
                     children
@@ -135,7 +126,9 @@ export function RegionBubbles({ regions, highlightedRegionId, onHighlight, onUpd
             });
         }
 
-        return attach(cleaned);
+        const attached = attach(cleaned);
+        onSetEditRegions(attached);
+        return attached;
     }
 
     // =========================
@@ -161,6 +154,7 @@ export function RegionBubbles({ regions, highlightedRegionId, onHighlight, onUpd
         );
     };
 
+
     // =========================
     // RENDER
     // =========================
@@ -174,10 +168,7 @@ export function RegionBubbles({ regions, highlightedRegionId, onHighlight, onUpd
             ? Math.round(parentSize * 0.42)
             : sizeFor(r);
 
-        const fill = regionDisplayColor(
-            r,
-            !!parentSize
-        );
+        const fill = r.color;
 
         const isHighlighted =
             highlightedRegionId === r.id;
