@@ -1,6 +1,7 @@
 import axios, { AxiosError, type AxiosInstance, type InternalAxiosRequestConfig } from 'axios';
 import axiosRetry from 'axios-retry';
 import { APP_CONFIG } from '@/constants/config';
+import { setTokens } from './auth';
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -27,6 +28,10 @@ apiClient.interceptors.request.use(
       const token = localStorage.getItem('accessToken') ?? localStorage.getItem('guestToken');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+      } else {
+        const newGuestToken = `guest_${crypto.randomUUID()}`;
+        setTokens(newGuestToken, '');
+        config.headers.Authorization = `Bearer ${newGuestToken}`;
       }
     }
     return config;
