@@ -1,4 +1,4 @@
-import { type EditableRegion, regionDisplayColor } from "@/components/editorvector/lib/svg-edit";
+import { type EditableRegion } from "@/components/editorvector/lib/svg-edit";
 import { cn } from "@/lib/utils";
 export function PalettePresets({
     regions,
